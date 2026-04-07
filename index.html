@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Rock Paper Scissors</h1>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <p class="stat-label">Rounds Played</p>
+                <p class="stat-value" id="roundCount">0</p>
+            </div>
+            <div class="stat-box">
+                <p class="stat-label">Current Streak</p>
+                <p class="stat-value" id="streakCount">0</p>
+            </div>
+            <div class="stat-box">
+                <p class="stat-label">Total Wins</p>
+                <p class="stat-value" id="winCount">0</p>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <h2>Make Your Choice</h2>
+            <div class="choices">
+                <button class="choice-btn" data-choice="rock">
+                    🪨 Rock
+                </button>
+                <button class="choice-btn" data-choice="paper">
+                    📄 Paper
+                </button>
+                <button class="choice-btn" data-choice="scissors">
+                    ✂️ Scissors
+                </button>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-container">
+                <div class="player-choice">
+                    <h3>You</h3>
+                    <p id="playerMove">-</p>
+                </div>
+                <div class="vs">VS</div>
+                <div class="computer-choice">
+                    <h3>Computer</h3>
+                    <p id="computerMove">-</p>
+                </div>
+            </div>
+            <p class="winner-message" id="winnerMessage"></p>
+        </div>
+
+        <div class="history-section">
+            <h2>Move History</h2>
+            <div class="history-container" id="historyContainer">
+                <p class="empty-history">No moves yet. Start playing!</p>
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
