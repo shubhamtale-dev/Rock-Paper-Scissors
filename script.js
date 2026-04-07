@@ -9,7 +9,7 @@ let gameState = {
     tournamentWinner: null
 };
 
-const MAX_ROUNDS = 5;
+const WINS_NEEDED = 3;
 
 
 function loadGameState() {
@@ -95,16 +95,13 @@ function playRound(playerChoice) {
         gameState.history.pop();
     }
 
-    // Check if tournament is complete
-    if (gameState.roundsPlayed === MAX_ROUNDS) {
+    // Check if someone has won the tournament (first to WINS_NEEDED wins)
+    if (gameState.wins === WINS_NEEDED) {
         gameState.tournamentOver = true;
-        if (gameState.wins > gameState.losses) {
-            gameState.tournamentWinner = 'player';
-        } else if (gameState.losses > gameState.wins) {
-            gameState.tournamentWinner = 'computer';
-        } else {
-            gameState.tournamentWinner = 'tie';
-        }
+        gameState.tournamentWinner = 'player';
+    } else if (gameState.losses === WINS_NEEDED) {
+        gameState.tournamentOver = true;
+        gameState.tournamentWinner = 'computer';
     }
 
     saveGameState();
@@ -114,7 +111,7 @@ function playRound(playerChoice) {
 
 
 function updateDisplay() {
-    document.getElementById('roundCount').textContent = gameState.roundsPlayed + '/5';
+    document.getElementById('roundCount').textContent = gameState.roundsPlayed;
     document.getElementById('winCount').textContent = gameState.wins;
     document.getElementById('lossCount').textContent = gameState.losses;
 
@@ -125,14 +122,11 @@ function updateDisplay() {
         const messageElement = document.getElementById('tournamentMessage');
         
         if (gameState.tournamentWinner === 'player') {
-            messageElement.textContent = '🏆 You Won the Tournament! 🏆';
+            messageElement.textContent = `🏆 You Won the Tournament! (${gameState.wins}-${gameState.losses}) 🏆`;
             messageElement.style.color = '#27ae60';
         } else if (gameState.tournamentWinner === 'computer') {
-            messageElement.textContent = '💻 Computer Won the Tournament! 💻';
+            messageElement.textContent = `💻 Computer Won the Tournament! (${gameState.losses}-${gameState.wins}) 💻`;
             messageElement.style.color = '#e74c3c';
-        } else {
-            messageElement.textContent = '🤝 Tournament is a Tie! 🤝';
-            messageElement.style.color = '#f39c12';
         }
 
         // Disable choice buttons
