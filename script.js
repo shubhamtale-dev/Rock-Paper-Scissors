@@ -1,15 +1,17 @@
-// Game State
+
 let gameState = {
     roundsPlayed: 0,
     wins: 0,
     losses: 0,
     ties: 0,
-    currentStreak: 0,
-    streakType: null, // 'win' or 'loss'
-    history: []
+    history: [],
+    tournamentOver: false,
+    tournamentWinner: null
 };
 
-// Load game state from localStorage
+const MAX_ROUNDS = 5;
+
+
 function loadGameState() {
     const saved = localStorage.getItem('rockPaperScissorsGame');
     if (saved) {
@@ -18,18 +20,18 @@ function loadGameState() {
     }
 }
 
-// Save game state to localStorage
+
 function saveGameState() {
     localStorage.setItem('rockPaperScissorsGame', JSON.stringify(gameState));
 }
 
-// Get computer's random choice
+
 function getComputerChoice() {
     const choices = ['rock', 'paper', 'scissors'];
     return choices[Math.floor(Math.random() * choices.length)];
 }
 
-// Determine the winner
+
 function determineWinner(playerChoice, computerChoice) {
     if (playerChoice === computerChoice) {
         return 'tie';
@@ -46,7 +48,7 @@ function determineWinner(playerChoice, computerChoice) {
     return 'lose';
 }
 
-// Get emoji for choice
+
 function getEmoji(choice) {
     const emojis = {
         rock: '🪨',
@@ -56,42 +58,32 @@ function getEmoji(choice) {
     return emojis[choice];
 }
 
-// Get choice name
+
 function getChoiceName(choice) {
     return choice.charAt(0).toUpperCase() + choice.slice(1);
 }
 
-// Play a round
+
 function playRound(playerChoice) {
+    // Check if tournament is already over
+    if (gameState.tournamentOver) {
+        alert('🏆 Tournament is over! Click "Start New Tournament" to play again.');
+        return;
+    }
+
     const computerChoice = getComputerChoice();
     const result = determineWinner(playerChoice, computerChoice);
 
-    // Update game state
     gameState.roundsPlayed++;
 
     if (result === 'win') {
         gameState.wins++;
-        if (gameState.streakType === 'win') {
-            gameState.currentStreak++;
-        } else {
-            gameState.currentStreak = 1;
-            gameState.streakType = 'win';
-        }
     } else if (result === 'lose') {
         gameState.losses++;
-        if (gameState.streakType === 'loss') {
-            gameState.currentStreak++;
-        } else {
-            gameState.currentStreak = 1;
-            gameState.streakType = 'loss';
-        }
     } else {
         gameState.ties++;
-        gameState.currentStreak = 0;
-        gameState.streakType = null;
     }
 
-    // Add to history
     gameState.history.unshift({
         round: gameState.roundsPlayed,
         playerChoice: playerChoice,
@@ -99,40 +91,64 @@ function playRound(playerChoice) {
         result: result
     });
 
-    // Keep only last 20 rounds in history
     if (gameState.history.length > 20) {
         gameState.history.pop();
     }
 
-    // Save state
-    saveGameState();
+    // Check if tournament is complete
+    if (gameState.roundsPlayed === MAX_ROUNDS) {
+        gameState.tournamentOver = true;
+        if (gameState.wins > gameState.losses) {
+            gameState.tournamentWinner = 'player';
+        } else if (gameState.losses > gameState.wins) {
+            gameState.tournamentWinner = 'computer';
+        } else {
+            gameState.tournamentWinner = 'tie';
+        }
+    }
 
-    // Update display
+    saveGameState();
     updateDisplay();
     displayResult(playerChoice, computerChoice, result);
 }
 
-// Update display
+
 function updateDisplay() {
-    document.getElementById('roundCount').textContent = gameState.roundsPlayed;
+    document.getElementById('roundCount').textContent = gameState.roundsPlayed + '/5';
     document.getElementById('winCount').textContent = gameState.wins;
-    
-    // Update streak display based on streak type
-    if (gameState.streakType === 'win') {
-        document.getElementById('streakCount').textContent = gameState.currentStreak;
-        document.getElementById('streakCount').parentElement.style.color = '#27ae60';
-    } else if (gameState.streakType === 'loss') {
-        document.getElementById('streakCount').textContent = gameState.currentStreak;
-        document.getElementById('streakCount').parentElement.style.color = '#e74c3c';
+    document.getElementById('lossCount').textContent = gameState.losses;
+
+    // Show tournament result if it's over
+    const tournamentInfo = document.getElementById('tournamentInfo');
+    if (gameState.tournamentOver) {
+        tournamentInfo.style.display = 'block';
+        const messageElement = document.getElementById('tournamentMessage');
+        
+        if (gameState.tournamentWinner === 'player') {
+            messageElement.textContent = '🏆 You Won the Tournament! 🏆';
+            messageElement.style.color = '#27ae60';
+        } else if (gameState.tournamentWinner === 'computer') {
+            messageElement.textContent = '💻 Computer Won the Tournament! 💻';
+            messageElement.style.color = '#e74c3c';
+        } else {
+            messageElement.textContent = '🤝 Tournament is a Tie! 🤝';
+            messageElement.style.color = '#f39c12';
+        }
+
+        // Disable choice buttons
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.disabled = true;
+        });
     } else {
-        document.getElementById('streakCount').textContent = '0';
-        document.getElementById('streakCount').parentElement.style.color = '';
+        tournamentInfo.style.display = 'none';
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.disabled = false;
+        });
     }
 
     updateHistory();
 }
 
-// Display result
 function displayResult(playerChoice, computerChoice, result) {
     document.getElementById('playerMove').textContent = getEmoji(playerChoice);
     document.getElementById('computerMove').textContent = getEmoji(computerChoice);
@@ -151,13 +167,12 @@ function displayResult(playerChoice, computerChoice, result) {
         messageElement.classList.add('tie');
     }
 
-    // Remove active state from all buttons
+
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 }
 
-// Update history display
 function updateHistory() {
     const historyContainer = document.getElementById('historyContainer');
     
@@ -182,55 +197,55 @@ function updateHistory() {
     }).join('');
 }
 
-// Reset game
+
 function resetGame() {
     if (gameState.roundsPlayed === 0) {
         alert('Game not started yet!');
         return;
     }
 
-    if (confirm('Are you sure you want to reset the game? All progress will be lost.')) {
+    if (confirm('Are you sure you want to start a new tournament? All progress will be lost.')) {
         gameState = {
             roundsPlayed: 0,
             wins: 0,
             losses: 0,
             ties: 0,
-            currentStreak: 0,
-            streakType: null,
-            history: []
+            history: [],
+            tournamentOver: false,
+            tournamentWinner: null
         };
 
         saveGameState();
         updateDisplay();
 
-        // Reset display
         document.getElementById('playerMove').textContent = '-';
         document.getElementById('computerMove').textContent = '-';
         document.getElementById('winnerMessage').textContent = '';
         document.getElementById('winnerMessage').classList.remove('win', 'lose', 'tie');
+        document.getElementById('tournamentInfo').style.display = 'none';
 
-        // Remove active state from all buttons
         document.querySelectorAll('.choice-btn').forEach(btn => {
             btn.classList.remove('active');
+            btn.disabled = false;
         });
     }
 }
 
-// Event listeners
+
 document.querySelectorAll('.choice-btn').forEach(button => {
     button.addEventListener('click', function() {
         const choice = this.dataset.choice;
         
-        // Add active class
+        
         document.querySelectorAll('.choice-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         this.classList.add('active');
 
-        // Play the round
+    
         playRound(choice);
     });
 });
 
-// Load saved game state on page load
+
 window.addEventListener('load', loadGameState);

@@ -13,16 +13,20 @@
         <div class="stats-container">
             <div class="stat-box">
                 <p class="stat-label">Rounds Played</p>
-                <p class="stat-value" id="roundCount">0</p>
+                <p class="stat-value" id="roundCount">0<span class="max-rounds">/5</span></p>
             </div>
             <div class="stat-box">
-                <p class="stat-label">Current Streak</p>
-                <p class="stat-value" id="streakCount">0</p>
-            </div>
-            <div class="stat-box">
-                <p class="stat-label">Total Wins</p>
+                <p class="stat-label">Your Score</p>
                 <p class="stat-value" id="winCount">0</p>
             </div>
+            <div class="stat-box">
+                <p class="stat-label">Computer Score</p>
+                <p class="stat-value" id="lossCount">0</p>
+            </div>
+        </div>
+        
+        <div class="tournament-info" id="tournamentInfo" style="display: none;">
+            <h2 id="tournamentMessage"></h2>
         </div>
 
         <div class="game-section">
@@ -62,7 +66,7 @@
             </div>
         </div>
 
-        <button class="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+        <button class="reset-btn" onclick="resetGame()">🔄 Start New Tournament</button>
     </div>
 
     <script src="script.js"></script>
